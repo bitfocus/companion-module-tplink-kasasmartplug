@@ -19,57 +19,14 @@ function instance(system, id, config) {
 instance.prototype.updateConfig = function(config) {
 	var self = this;
 
-	if (self.socket !== undefined) {
-		self.socket.destroy();
-		delete self.socket;
-	}
-
 	self.config = config;
-
-	self.init_tcp();
+	self.status(self.STATE_OK);
 };
 
 instance.prototype.init = function() {
 	var self = this;
-
-	debug = self.debug;
-	log = self.log;
-
-	self.init_tcp();
+	self.status(self.STATE_OK);
 };
-
-instance.prototype.init_tcp = function() {
-	var self = this;
-
-	if (self.socket !== undefined) {
-		self.socket.destroy();
-		delete self.socket;
-	}
-
-	self.status(self.STATE_WARNING, 'Connecting');
-
-	if (self.config.host) {
-		self.socket = new tcp(self.config.host, self.config.port);
-
-		self.socket.on('status_change', function (status, message) {
-			self.status(status, message);
-		});
-
-		self.socket.on('error', function (err) {
-			debug('Network error (' + self.config.host + ')', err);
-			self.status(self.STATE_ERROR, err);
-			self.log('error','Network error (' + self.config.host + ') ' + err.message);
-		});
-
-		self.socket.on('connect', function () {
-			self.status(self.STATE_OK);
-			debug('Connected (' + self.config.host + ')');
-		})
-
-		self.socket.on('data', function (data) {});
-	}
-};
-
 
 // Return config fields for web config
 instance.prototype.config_fields = function () {
@@ -109,14 +66,13 @@ instance.prototype.destroy = function() {
 		self.socket.destroy();
 	}
 
-	debug('destroy', self.id);;
+	debug('destroy', self.id);
 };
 
 instance.prototype.actions = function(system) {
 	var self = this;
 
 	self.system.emit('instance_actions', self.id, {
-
 		'on': {
 			label: 'Turn On'
 		},
@@ -139,16 +95,41 @@ instance.prototype.action = function(action) {
 			break;
 	}
 
-	if (cmd !== undefined) {
-
-		debug('Turning outlet ' + action.action + ': ' + self.config.host);
-
-		if (self.socket !== undefined && self.socket.connected) {
-			self.socket.send(Buffer.from(cmd, 'hex'));
-			self.socket.send(Buffer.from('\r\n'));
+	if (cmd !== undefined) {		
+		if (self.socket !== undefined) {
+			self.socket.destroy();
+			delete self.socket;
 		}
-		else {
-			debug('Socket not connected: ' + self.config.host);
+
+		self.status(self.STATE_WARNING, 'Connecting');
+
+		if (self.config.host) {
+			self.socket = new tcp(self.config.host, self.config.port);
+
+			self.socket.on('error', function (err) {
+				if (err.toString().indexOf('ECONNREFUSED') > -1) {
+					self.debug('Network error: Unable to connect to device:' + self.config.host);
+					self.log('error','Network error: Unable to connect to device:' + self.config.host);
+				}
+				else {
+					self.debug('Network error (' + self.config.host + ')', err);
+					self.log('error','Network error: ' + err);
+				}
+				
+				self.status(self.STATE_ERROR, err);
+				self.socket.destroy();
+				delete self.socket;
+			});
+
+			self.socket.on('connect', function () {
+				self.debug('Connected (' + self.config.host + ')');
+				self.debug('Turning outlet ' + action.action + ': ' + self.config.host);
+				self.socket.send(Buffer.from(cmd, 'hex'));
+				self.socket.send(Buffer.from('\r\n'));
+				self.socket.destroy();
+				delete self.socket;
+				self.status(self.STATE_OK);
+			});
 		}
 	}
 }
