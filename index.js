@@ -111,12 +111,9 @@ instance.prototype.action = function (action) {
 			cmd = tplink_smarthome_crypto.encryptWithHeader('{"system":{"set_relay_state":{"state":0}}}')
 			break
 		case 'toggle':
-			console.log(self.variables)
 			if (self.variables['power'] === 'On') {
-				console.log('turning off')
 				cmd = tplink_smarthome_crypto.encryptWithHeader('{"system":{"set_relay_state":{"state":0}}}')
 			} else {
-				console.log('turning on')
 				cmd = tplink_smarthome_crypto.encryptWithHeader('{"system":{"set_relay_state":{"state":1}}}')
 			}
 			break
