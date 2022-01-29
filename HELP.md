@@ -6,8 +6,8 @@ Controls TP-Link Kasa Smart Home Wifi Plugs, like the HS-100 model.
 
 You will need:
 
-1. the Target IP address (which is the IP of the iOS device running MixEffect), and
-2. the Target Port (which is the port of the switcher's OSC server described above).
+1. the Target IP address and
+2. the Target Port.
 
 ### Actions
 
