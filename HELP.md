@@ -1,30 +1,31 @@
-## TP-Link Kasa Smart Plug
+# TP-Link Kasa Smart Plug
 
-Controls TP-Link Kasa Smart Home Wifi Plugs, like the HS-100 model.
+This module controls TP-Link Kasa Smart Plugs. It can control both single plug and multi plug devices.
 
-### Configuration
+Actions:
 
-You will need:
+* Power On/Off/Toggle
 
-1. the Target IP address and
-2. the Target Port.
+Variables:
 
-### Actions
+* SW Version
+* HW Version
+* Model
+* Device ID
+* OEM ID
+* HW ID
+* RSSI
+* Latitude
+* Longitude
+* Alias
+* MAC Address
+* Power State
+* Total Plugs
 
-- Turn On
-- Turn Off
-- Toggle _(added in v1.1.0)
+Feedbacks:
 
-### Variables
+* Power State
 
-- 'power' - Internal variable set to the current state of the power relay _(added in v1.1.0)
+Presets:
 
-### Feedbacks
-
-- Set color based on the value of the 'power' variable _(added in v1.1.0)
-
-### Presets
-
-- Turn On _(added in v1.1.0)
-- Turn Off _(added in v1.1.0)
-- Toggle _(added in v1.1.0)
+* Power On/Off/Toggle
