@@ -34,11 +34,13 @@ module.exports = {
 				],
 				callback: function (feedback, bank) {
 					let opt = feedback.options;
-	
-					let plug_state = self.PLUGINFO.relay_state;
+
+					if (self.PLUGINFO) {
+						let plug_state = self.PLUGINFO.relay_state;
 					
-					if (plug_state == opt.option) {
-						return true;
+						if (plug_state == opt.option) {
+							return true;
+						}
 					}
 	
 					return false
@@ -76,12 +78,14 @@ module.exports = {
 				],
 				callback: function (feedback, bank) {
 					let opt = feedback.options;
+
+					if (self.PLUGINFO && self.PLUGINFO.children) {
+						let plug_state = self.PLUGINFO.children.find((PLUG) => PLUG.id == opt.plug).state;
 	
-					let plug_state = self.PLUGINFO.children.find((PLUG) => PLUG.id == opt.plug).state;
-	
-					if (plug_state == opt.option) {
-						return true;
-					}
+						if (plug_state == opt.option) {
+							return true;
+						}
+					}					
 	
 					return false
 				}
