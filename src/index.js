@@ -290,7 +290,7 @@ instance.prototype.config_fields = function () {
 			id: 'interval',
 			label: 'Update Interval',
 			width: 3,
-			default: 0
+			default: 2000
 		}
 	]
 };
