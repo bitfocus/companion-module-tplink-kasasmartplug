@@ -80,14 +80,18 @@ module.exports = {
 					let opt = feedback.options;
 
 					if (self.PLUGINFO && self.PLUGINFO.children) {
-						let plug_state = self.PLUGINFO.children.find((PLUG) => PLUG.id == opt.plug).state;
-	
-						if (plug_state == opt.option) {
-							return true;
+						let plug = self.PLUGINFO.children.find((PLUG) => PLUG.id == opt.plug);
+
+						if (plug) {
+							let plug_state = plug.state;
+
+							if (plug_state == opt.option) {
+								return true;
+							}
 						}
 					}					
 	
-					return false
+					return false;
 				}
 			}
 		}
