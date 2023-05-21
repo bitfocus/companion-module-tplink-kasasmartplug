@@ -1,40 +1,36 @@
 module.exports = {
-	// ##########################
-	// #### Instance Actions ####
-	// ##########################
-	setActions: function (i) {
-		let self = i;
+	initActions: function () {
+		let self = this;
 		let actions = {};
-
-		// ########################
-		// #### Power Actions ####
-		// ########################
 
 		if (self.SINGLEPLUGMODE) {
 			actions.on = {
-				label: 'Power On',
-				callback: function (action, bank) {
+				name: 'Power On',
+				options: [],
+				callback: async function (action) {
 					self.power(1, 1);
 				}
 			}
 	
 			actions.off = {
-				label: 'Power Off',
-				callback: function (action, bank) {
+				name: 'Power Off',
+				options: [],
+				callback: async function (action) {
 					self.power(1, 0);
 				}
 			}
 	
 			actions.toggle = {
-				label: 'Power Toggle',
-				callback: function (action, bank) {
+				name: 'Power Toggle',
+				options: [],
+				callback: async function (action) {
 					self.powerToggle(1);
 				}
 			}
 		}
 		else {
 			actions.powerOn = {
-				label: 'Power On',
+				name: 'Power On',
 				options: [
 					{
 						type: 'dropdown',
@@ -45,13 +41,13 @@ module.exports = {
 						tooltip: 'The plug on the device to control'
 					}
 				],
-				callback: function (action, bank) {
+				callback: async function (action) {
 					self.power(action.options.plug, 1);
 				}
 			}
 	
 			actions.powerOff = {
-				label: 'Power Off',
+				name: 'Power Off',
 				options: [
 					{
 						type: 'dropdown',
@@ -62,13 +58,13 @@ module.exports = {
 						tooltip: 'The plug on the device to control'
 					}
 				],
-				callback: function (action, bank) {
+				callback: async function (action) {
 					self.power(action.options.plug, 0);
 				}
 			}
 	
 			actions.powerToggle = {
-				label: 'Power Toggle',
+				name: 'Power Toggle',
 				options: [
 					{
 						type: 'dropdown',
@@ -79,12 +75,12 @@ module.exports = {
 						tooltip: 'The plug on the device to control'
 					}
 				],
-				callback: function (action, bank) {
+				callback: async function (action) {
 					self.powerToggle(action.options.plug);
 				}
 			}
 		}
 
-		return actions
+		self.setActionDefinitions(actions);
 	}
 }

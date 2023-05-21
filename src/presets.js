@@ -1,10 +1,12 @@
+const { combineRgb } = require('@companion-module/base')
+
 module.exports = {
-	setPresets: function (i) {
-		let self = i;
+	initPresets: function () {
+		let self = this;
 		let presets = [];
 
-		const foregroundColor = self.rgb(255, 255, 255) // White
-		const backgroundColorRed = self.rgb(255, 0, 0) // Red
+		const foregroundColor = combineRgb(255, 255, 255) // White
+		const backgroundColorRed = combineRgb(255, 0, 0) // Red
 
 		// ########################
 		// #### Power Presets ####
@@ -12,23 +14,28 @@ module.exports = {
 
 		if (self.SINGLEPLUGMODE) {
 			presets.push({
+				type: 'button',
 				category: 'Power',
-				label: 'Power On',
-				bank: {
-					style: 'text',
+				name: 'Power On',
+				style: {
 					text: 'Power\\nON',
 					size: '14',
 					color: '16777215',
-					bgcolor: self.rgb(0, 0, 0),
+					bgcolor: combineRgb(0, 0, 0),
 				},
-				actions: [
+				steps: [
 					{
-						action: 'on'
+						down: [
+							{
+								actionId: 'on'
+							}
+						],
+						up: []
 					}
 				],
 				feedbacks: [
 					{
-						type: 'powerState',
+						feedbackId: 'powerState',
 						options: {
 							option: 1
 						},
@@ -41,23 +48,28 @@ module.exports = {
 			})
 	
 			presets.push({
+				type: 'button',
 				category: 'Power',
-				label: 'Power Off',
-				bank: {
-					style: 'text',
+				name: 'Power Off',
+				style: {
 					text: 'Power\\nOFF',
 					size: '14',
 					color: '16777215',
-					bgcolor: self.rgb(0, 0, 0),
+					bgcolor: combineRgb(0, 0, 0),
 				},
-				actions: [
+				steps: [
 					{
-						action: 'off'
+						down: [
+							{
+								actionId: 'off'
+							}
+						],
+						up: []
 					}
 				],
 				feedbacks: [
 					{
-						type: 'powerState',
+						feedbackId: 'powerState',
 						options: {
 							option: 0
 						},
@@ -70,18 +82,35 @@ module.exports = {
 			})
 	
 			presets.push({
+				type: 'button',
 				category: 'Power',
-				label: 'Power Toggle',
-				bank: {
-					style: 'text',
+				name: 'Power Toggle',
+				style: {
 					text: 'Power\\nTOGGLE',
 					size: '14',
 					color: '16777215',
-					bgcolor: self.rgb(0, 0, 0),
+					bgcolor: combineRgb(0, 0, 0),
 				},
-				actions: [
+				steps: [
 					{
-						action: 'toggle'
+						down: [
+							{
+								actionId: 'toggle'
+							}
+						],
+						up: []
+					}
+				],
+				feedbacks: [
+					{
+						feedbackId: 'powerState',
+						options: {
+							option: 1
+						},
+						style: {
+							color: foregroundColor,
+							bgcolor: backgroundColorRed
+						}
 					}
 				]
 			})
@@ -89,26 +118,31 @@ module.exports = {
 		else {
 			for (let i = 0; i < self.CHOICES_PLUGS.length; i++) {
 				presets.push({
+					type: 'button',
 					category: 'Power',
-					label: 'Power On',
-					bank: {
-						style: 'text',
+					name: 'Power On',
+					style: {
 						text: 'Power\\nON\\n' + (i+1),
 						size: '14',
 						color: '16777215',
-						bgcolor: self.rgb(0, 0, 0),
+						bgcolor: combineRgb(0, 0, 0),
 					},
-					actions: [
+					steps: [
 						{
-							action: 'powerOn',
-							options: {
-								plug: self.CHOICES_PLUGS[i].id
-							}
+							down: [
+								{
+									actionId: 'powerOn',
+									options: {
+										plug: self.CHOICES_PLUGS[i].id
+									}
+								}
+							],
+							up: []
 						}
 					],
 					feedbacks: [
 						{
-							type: 'powerState',
+							feedbackId: 'powerState',
 							options: {
 								plug: self.CHOICES_PLUGS[i].id,
 								option: 1
@@ -122,26 +156,31 @@ module.exports = {
 				})
 		
 				presets.push({
+					type: 'button',
 					category: 'Power',
-					label: 'Power Off',
-					bank: {
-						style: 'text',
+					name: 'Power Off',
+					style: {
 						text: 'Power\\nOFF\\n' + (i+1),
 						size: '14',
 						color: '16777215',
-						bgcolor: self.rgb(0, 0, 0),
+						bgcolor: combineRgb(0, 0, 0),
 					},
-					actions: [
+					steps: [
 						{
-							action: 'powerOff',
-							options: {
-								plug: self.CHOICES_PLUGS[i].id
-							}
+							down: [
+								{
+									actionId: 'powerOff',
+									options: {
+										plug: self.CHOICES_PLUGS[i].id
+									}
+								}
+							],
+							up: []
 						}
 					],
 					feedbacks: [
 						{
-							type: 'powerState',
+							feedbackId: 'powerState',
 							options: {
 								plug: self.CHOICES_PLUGS[i].id,
 								option: 0
@@ -155,20 +194,38 @@ module.exports = {
 				})
 		
 				presets.push({
+					type: 'button',
 					category: 'Power',
-					label: 'Power Toggle',
-					bank: {
-						style: 'text',
+					name: 'Power Toggle',
+					style: {
 						text: 'Power\\nTOGGLE\\n' + (i+1),
 						size: '14',
 						color: '16777215',
-						bgcolor: self.rgb(0, 0, 0),
+						bgcolor: combineRgb(0, 0, 0),
 					},
-					actions: [
+					steps: [
 						{
-							action: 'powerToggle',
+							down: [
+								{
+									actionId: 'powerToggle',
+									options: {
+										plug: self.CHOICES_PLUGS[i].id
+									}
+								}
+							],
+							up: []
+						}
+					],
+					feedbacks: [
+						{
+							feedbackId: 'powerState',
 							options: {
-								plug: self.CHOICES_PLUGS[i].id
+								plug: self.CHOICES_PLUGS[i].id,
+								option: 1
+							},
+							style: {
+								color: foregroundColor,
+								bgcolor: backgroundColorRed
 							}
 						}
 					]
@@ -176,6 +233,6 @@ module.exports = {
 			}
 		}
 
-		return presets;
+		self.setPresetDefinitions(presets);
 	}
 }

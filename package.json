@@ -1,32 +1,20 @@
 {
 	"name": "tplink-kasasmartplug",
 	"version": "1.1.1",
-	"api_version": "1.0",
-	"keywords": [
-		"plug",
-		"kasa"
-	],
-	"manufacturer": "TP-Link",
-	"product": [
-		"Kasa Smart Plug"
-	],
-	"shortname": "tplink-kasasmartplug",
-	"description": "Companion module for TP-Link Kasa Smart Plugs",
 	"main": "src/index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
-	"author": "Joseph Adams <josephdadams@gmail.com>",
 	"license": "MIT",
-	"homepage": "https://github.com/bitfocus/companion-module-tplink-kasasmartplug#readme",
-	"bugs": {
-		"url": "https://github.com/bitfocus/companion-module-tplink-kasasmartplug/issues"
-	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/bitfocus/companion-module-tplink-kasasmartplug.git"
 	},
 	"dependencies": {
+		"@companion-module/base": "~1.4.1",
 		"tplink-smarthome-api": "^4.2.0"
+	},
+	"devDependencies": {
+		"@companion-module/tools": "^1.2.0"
 	}
 }
