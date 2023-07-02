@@ -51,6 +51,8 @@ class kasaplugInstance extends InstanceBase {
 	async destroy() {
 		this.stopInterval()
 
+		if (this.cleanupEvents) this.cleanupEvents()
+
 		if (this.DEVICE) {
 			this.DEVICE.closeConnection()
 

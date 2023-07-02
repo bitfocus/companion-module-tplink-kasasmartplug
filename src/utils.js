@@ -144,14 +144,26 @@ module.exports = {
 
 	monitorPlugs: async function () {
 		try {
-			// if (this.PLUGINFO.children && this.PLUGINFO.children.length > 0) {
-			// 	for (const plugInfo of this.PLUGINFO.children) {
-			// 		let childPlug = await client.getDevice({ host: this.config.host, childId: plugInfo.id }, { timeout: 20000 })
-			// 		this.monitorEvents(childPlug)
-			// 	}
-			// } else {
-			// 	this.monitorEvents(this.DEVICE)
-			// }
+			if (this.cleanupEvents) this.cleanupEvents()
+			delete this.cleanupEvents
+
+			if (this.PLUGINFO.children && this.PLUGINFO.children.length > 0) {
+				const cleanupFns = []
+
+				for (const plugInfo of this.PLUGINFO.children) {
+					// TODO - these should be cached to avoid this constant recreation
+					let childPlug = await client.getDevice({ host: this.config.host, childId: plugInfo.id }, { timeout: 20000 })
+					cleanupFns.push(this.monitorEvents(childPlug))
+				}
+
+				this.cleanupEvents = () => {
+					for (const fn of cleanupFns) {
+						if (fn) fn()
+					}
+				}
+			} else {
+				this.cleanupEvents = this.monitorEvents(this.DEVICE)
+			}
 		} catch (error) {
 			this.handleError(error)
 		}
@@ -165,14 +177,15 @@ module.exports = {
 			plug.on('emeter-realtime-update', (emeterRealtime) => {})
 
 			// Plug Events
+			const plugId = plug.id
 			plug.on('power-on', () => {
-				this.updatePlugState(plug.id, 1)
+				this.updatePlugState(plugId, 1)
 			})
 			plug.on('power-off', () => {
-				this.updatePlugState(plug.id, 0)
+				this.updatePlugState(plugId, 0)
 			})
 			plug.on('power-update', (powerOn) => {
-				this.updatePlugState(plug.id, powerOn)
+				this.updatePlugState(plugId, powerOn)
 			})
 			plug.on('in-use', () => {})
 			plug.on('not-in-use', () => {})
@@ -191,6 +204,11 @@ module.exports = {
 			if (pollInterval) {
 				plug.startPolling(pollInterval)
 			}
+		}
+
+		return () => {
+			plug.stopPolling()
+			plug.removeAllListeners()
 		}
 	},
 
