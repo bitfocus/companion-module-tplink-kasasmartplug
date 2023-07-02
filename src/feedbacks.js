@@ -2,8 +2,8 @@ const { combineRgb } = require('@companion-module/base')
 
 module.exports = {
 	initFeedbacks: function () {
-		let self = this;
-		let feedbacks = {};
+		let self = this
+		let feedbacks = {}
 
 		const foregroundColor = combineRgb(255, 255, 255) // White
 		const backgroundColorRed = combineRgb(255, 0, 0) // Red
@@ -27,26 +27,25 @@ module.exports = {
 						default: 1,
 						choices: [
 							{ id: 0, label: 'Off' },
-							{ id: 1, label: 'On' }
-						]
-					}
+							{ id: 1, label: 'On' },
+						],
+					},
 				],
 				callback: async function (feedback) {
-					let opt = feedback.options;
+					let opt = feedback.options
 
 					if (self.PLUGINFO) {
-						let plug_state = self.PLUGINFO.relay_state;
-					
+						let plug_state = self.PLUGINFO.relay_state
+
 						if (plug_state == opt.option) {
-							return true;
+							return true
 						}
 					}
-	
+
 					return false
-				}
+				},
 			}
-		}
-		else {
+		} else {
 			feedbacks.powerState = {
 				type: 'boolean',
 				name: 'Power State',
@@ -62,7 +61,7 @@ module.exports = {
 						id: 'plug',
 						default: 1,
 						choices: self.CHOICES_PLUGS,
-						tooltip: 'The plug on the device'
+						tooltip: 'The plug on the device',
 					},
 					{
 						type: 'dropdown',
@@ -71,30 +70,30 @@ module.exports = {
 						default: 1,
 						choices: [
 							{ id: 0, label: 'Off' },
-							{ id: 1, label: 'On' }
-						]
-					}
+							{ id: 1, label: 'On' },
+						],
+					},
 				],
 				callback: async function (feedback) {
-					let opt = feedback.options;
+					let opt = feedback.options
 
 					if (self.PLUGINFO && self.PLUGINFO.children) {
-						let plug = self.PLUGINFO.children.find((PLUG) => PLUG.id == opt.plug);
+						let plug = self.PLUGINFO.children.find((PLUG) => PLUG.id == opt.plug)
 
 						if (plug) {
-							let plug_state = plug.state;
+							let plug_state = plug.state
 
 							if (plug_state == opt.option) {
-								return true;
+								return true
 							}
 						}
-					}					
-	
-					return false;
-				}
+					}
+
+					return false
+				},
 			}
 		}
 
-		self.setFeedbackDefinitions(feedbacks);
-	}
+		self.setFeedbackDefinitions(feedbacks)
+	},
 }

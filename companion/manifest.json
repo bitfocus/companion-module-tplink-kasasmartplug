@@ -21,11 +21,6 @@
 		"entrypoint": "../src/index.js"
 	},
 	"manufacturer": "TP-Link",
-	"products": [
-		"Kasa Smart Plug"
-	],
-	"keywords": [
-		"plug",
-		"kasa"
-	]
+	"products": ["Kasa Smart Plug"],
+	"keywords": ["plug", "kasa"]
 }

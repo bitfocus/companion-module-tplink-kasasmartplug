@@ -1,34 +1,33 @@
 module.exports = {
 	initActions: function () {
-		let self = this;
-		let actions = {};
+		let self = this
+		let actions = {}
 
 		if (self.SINGLEPLUGMODE) {
 			actions.on = {
 				name: 'Power On',
 				options: [],
 				callback: async function (action) {
-					self.power(1, 1);
-				}
+					self.power(1, 1)
+				},
 			}
-	
+
 			actions.off = {
 				name: 'Power Off',
 				options: [],
 				callback: async function (action) {
-					self.power(1, 0);
-				}
+					self.power(1, 0)
+				},
 			}
-	
+
 			actions.toggle = {
 				name: 'Power Toggle',
 				options: [],
 				callback: async function (action) {
-					self.powerToggle(1);
-				}
+					self.powerToggle(1)
+				},
 			}
-		}
-		else {
+		} else {
 			actions.powerOn = {
 				name: 'Power On',
 				options: [
@@ -38,14 +37,14 @@ module.exports = {
 						id: 'plug',
 						default: self.CHOICES_PLUGS[0].id,
 						choices: self.CHOICES_PLUGS,
-						tooltip: 'The plug on the device to control'
-					}
+						tooltip: 'The plug on the device to control',
+					},
 				],
 				callback: async function (action) {
-					self.power(action.options.plug, 1);
-				}
+					self.power(action.options.plug, 1)
+				},
 			}
-	
+
 			actions.powerOff = {
 				name: 'Power Off',
 				options: [
@@ -55,14 +54,14 @@ module.exports = {
 						id: 'plug',
 						default: self.CHOICES_PLUGS[0].id,
 						choices: self.CHOICES_PLUGS,
-						tooltip: 'The plug on the device to control'
-					}
+						tooltip: 'The plug on the device to control',
+					},
 				],
 				callback: async function (action) {
-					self.power(action.options.plug, 0);
-				}
+					self.power(action.options.plug, 0)
+				},
 			}
-	
+
 			actions.powerToggle = {
 				name: 'Power Toggle',
 				options: [
@@ -72,15 +71,15 @@ module.exports = {
 						id: 'plug',
 						default: self.CHOICES_PLUGS[0].id,
 						choices: self.CHOICES_PLUGS,
-						tooltip: 'The plug on the device to control'
-					}
+						tooltip: 'The plug on the device to control',
+					},
 				],
 				callback: async function (action) {
-					self.powerToggle(action.options.plug);
-				}
+					self.powerToggle(action.options.plug)
+				},
 			}
 		}
 
-		self.setActionDefinitions(actions);
-	}
+		self.setActionDefinitions(actions)
+	},
 }

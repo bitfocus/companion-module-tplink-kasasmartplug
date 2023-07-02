@@ -23,9 +23,9 @@ class kasaplugInstance extends InstanceBase {
 			...utils,
 		})
 
-		this.INTERVAL = null; //used for polling device
-		
-		this.DEVICE = null;
+		this.INTERVAL = null //used for polling device
+
+		this.DEVICE = null
 
 		this.PLUGINFO = {
 			sw_ver: '',
@@ -40,21 +40,21 @@ class kasaplugInstance extends InstanceBase {
 			mac: '',
 			relay_state: 0,
 			alias: '',
-			children: []
-		};
+			children: [],
+		}
 
-		this.CHOICES_PLUGS = [ {id: 1, label: 'Plug'} ];
-		
-		this.SINGLEPLUGMODE = true;
+		this.CHOICES_PLUGS = [{ id: 1, label: 'Plug' }]
+
+		this.SINGLEPLUGMODE = true
 	}
 
 	async destroy() {
-		let self = this;
+		let self = this
 
-		self.stopInterval();
+		self.stopInterval()
 
 		if (self.DEVICE) {
-			self.DEVICE.closeConnection();
+			self.DEVICE.closeConnection()
 		}
 	}
 
@@ -64,23 +64,23 @@ class kasaplugInstance extends InstanceBase {
 
 	async configUpdated(config) {
 		// polling is running and polling has been de-selected by config change
-		this.stopInterval();
+		this.stopInterval()
 
 		this.config = config
-	
-		this.updateStatus(InstanceStatus.Connecting);
-		
-		this.getInformation();
-		this.setupInterval();
-		
+
+		this.updateStatus(InstanceStatus.Connecting)
+
+		this.getInformation()
+		this.setupInterval()
+
 		this.initActions()
 		this.initFeedbacks()
 		this.initVariables()
 		this.initPresets()
 
-		this.checkVariables();
-		this.checkFeedbacks();
+		this.checkVariables()
+		this.checkFeedbacks()
 	}
 }
 
-runEntrypoint(kasaplugInstance, UpgradeScripts);
+runEntrypoint(kasaplugInstance, UpgradeScripts)
