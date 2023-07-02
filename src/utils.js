@@ -72,8 +72,16 @@ module.exports = {
 
 		if (!this.config.host) return
 
+		if (this.pollRunning) {
+			this.pollPending = true
+			return
+		}
+		this.pollRunning = true
+		this.pollPending = false
+
 		try {
 			if (!this.DEVICE) {
+				console.log('reload device')
 				this.DEVICE = await client.getDevice({ host: this.config.host }, { timeout: 20000 })
 			}
 
@@ -101,6 +109,11 @@ module.exports = {
 			}
 		} catch (error) {
 			this.handleError(error)
+		}
+
+		this.pollRunning = false
+		if (this.pollPending) {
+			this.getInformation()
 		}
 	},
 
@@ -131,14 +144,14 @@ module.exports = {
 
 	monitorPlugs: async function () {
 		try {
-			if (this.PLUGINFO.children && this.PLUGINFO.children.length > 0) {
-				for (const plugInfo of this.PLUGINFO.children) {
-					let childPlug = await client.getDevice({ host: this.config.host, childId: plugInfo.id }, { timeout: 20000 })
-					this.monitorEvents(childPlug)
-				}
-			} else {
-				this.monitorEvents(this.DEVICE)
-			}
+			// if (this.PLUGINFO.children && this.PLUGINFO.children.length > 0) {
+			// 	for (const plugInfo of this.PLUGINFO.children) {
+			// 		let childPlug = await client.getDevice({ host: this.config.host, childId: plugInfo.id }, { timeout: 20000 })
+			// 		this.monitorEvents(childPlug)
+			// 	}
+			// } else {
+			// 	this.monitorEvents(this.DEVICE)
+			// }
 		} catch (error) {
 			this.handleError(error)
 		}
