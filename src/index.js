@@ -53,6 +53,8 @@ class kasaplugInstance extends InstanceBase {
 
 		if (this.DEVICE) {
 			this.DEVICE.closeConnection()
+
+			delete this.DEVICE
 		}
 	}
 

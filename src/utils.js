@@ -6,170 +6,145 @@ const client = new Client()
 
 module.exports = {
 	power: async function (plugId, powerState) {
-		let self = this
+		if (!this.config.host) return
 
-		let plugName = ''
+		const plugName = this.CHOICES_PLUGS.find((PLUG) => PLUG.id == plugId)?.label || ''
 
-		let plugObj = self.CHOICES_PLUGS.find((PLUG) => PLUG.id == plugId)
-		if (plugObj) {
-			plugName = plugObj.label
-		}
+		try {
+			this.log('info', `Setting ${plugName} Power State to: ${powerState ? 'On' : 'Off'}`)
 
-		if (self.config.host) {
-			try {
-				self.log('info', `Setting ${plugName} Power State to: ${powerState ? 'On' : 'Off'}`)
-
-				if (self.SINGLEPLUGMODE) {
-					self.DEVICE.setPowerState(powerState)
-				} else {
-					let plug = await client.getDevice({ host: self.config.host, childId: plugId }, { timeout: 20000 })
-					plug.setPowerState(powerState)
-				}
-
-				//self.updatePlugState(plugId, powerState);
-			} catch (error) {
-				self.handleError(error)
+			if (this.SINGLEPLUGMODE) {
+				await this.DEVICE.setPowerState(powerState)
+			} else {
+				let plug = await client.getDevice({ host: this.config.host, childId: plugId }, { timeout: 20000 })
+				await plug.setPowerState(powerState)
 			}
+
+			//self.updatePlugState(plugId, powerState);
+		} catch (error) {
+			this.handleError(error)
 		}
 	},
 
 	powerToggle: async function (plugId) {
-		let self = this
+		if (!this.config.host) return
 
-		let plugName = ''
+		const plugName = this.CHOICES_PLUGS.find((PLUG) => PLUG.id == plugId)?.label || ''
 
-		let plugObj = self.CHOICES_PLUGS.find((PLUG) => PLUG.id == plugId)
-		if (plugObj) {
-			plugName = plugObj.label
-		}
-
-		if (self.config.host) {
-			try {
-				let plug
-				if (self.SINGLEPLUGMODE) {
-					plug = await client.getDevice({ host: self.config.host })
-				} else {
-					plug = await client.getDevice({ host: self.config.host, childId: plugId })
-				}
-				self.log('info', `Toggling ${plugName} Power`)
-				plug.togglePowerState()
-			} catch (error) {
-				self.handleError(error)
+		try {
+			let plug
+			if (this.SINGLEPLUGMODE) {
+				plug = await client.getDevice({ host: this.config.host })
+			} else {
+				plug = await client.getDevice({ host: this.config.host, childId: plugId })
 			}
+			this.log('info', `Toggling ${plugName} Power`)
+			await plug.togglePowerState()
+		} catch (error) {
+			this.handleError(error)
 		}
 	},
 
-	setAlias: function (newName) {
-		let self = this
+	// setAlias: function (newName) {
+	// 	let self = this
 
-		if (self.config.host) {
-			try {
-				if (self.config.alias !== '') {
-					self.log('info', 'Setting Plug Alias to: ' + newName)
+	// 	if (self.config.host) {
+	// 		try {
+	// 			if (self.config.alias !== '') {
+	// 				self.log('info', 'Setting Plug Alias to: ' + newName)
 
-					if (!self.DEVICE) {
-						self.DEVICE = client.getDevice({ host: self.config.host })
-					}
+	// 				if (!self.DEVICE) {
+	// 					self.DEVICE = await client.getDevice({ host: self.config.host })
+	// 				}
 
-					self.DEVICE.then((device) => {
-						device.setAlias(newName)
-					})
-				}
-			} catch (error) {
-				self.handleError(error)
-			}
-		}
-	},
+	// 				self.DEVICE.then((device) => {
+	// 					device.setAlias(newName)
+	// 				})
+	// 			}
+	// 		} catch (error) {
+	// 			self.handleError(error)
+	// 		}
+	// 	}
+	// },
 
 	getInformation: async function () {
 		//Get all information from Device
-		let self = this
 
-		if (!self.config.host) return
+		if (!this.config.host) return
 
 		try {
-			if (!self.DEVICE) {
-				self.DEVICE = await client.getDevice({ host: self.config.host }, { timeout: 20000 })
+			if (!this.DEVICE) {
+				this.DEVICE = await client.getDevice({ host: this.config.host }, { timeout: 20000 })
 			}
 
-			self.PLUGINFO = await self.DEVICE.getSysInfo()
+			this.PLUGINFO = await this.DEVICE.getSysInfo()
 
-			if (self.PLUGINFO) {
-				self.updateStatus(InstanceStatus.Ok)
+			if (this.PLUGINFO) {
+				this.updateStatus(InstanceStatus.Ok)
 
 				try {
-					self.updateData()
-					self.monitorPlugs()
+					this.updateData()
+					this.monitorPlugs()
 				} catch (error) {
-					self.handleError(error)
+					this.handleError(error)
 				}
 
 				// TODO - this is rather costly to reinit everything for every poll
 
-				self.initActions() // export actions
-				self.initFeedbacks()
-				self.initVariables()
-				self.initPresets()
+				this.initActions() // export actions
+				this.initFeedbacks()
+				this.initVariables()
+				this.initPresets()
 
-				self.checkVariables()
-				self.checkFeedbacks()
+				this.checkVariables()
+				this.checkFeedbacks()
 			}
 		} catch (error) {
-			self.handleError(error)
+			this.handleError(error)
 		}
 	},
 
 	updateData: function () {
-		let self = this
 		//check the number of children (total plugs) the device has and update the action list appropriately
 
-		if (self.PLUGINFO.children && self.PLUGINFO.children.length > 0) {
-			self.SINGLEPLUGMODE = false
-			self.CHOICES_PLUGS = []
+		if (this.PLUGINFO.children && this.PLUGINFO.children.length > 0) {
+			this.SINGLEPLUGMODE = false
+			this.CHOICES_PLUGS = []
 
-			for (let i = 0; i < self.PLUGINFO.children.length; i++) {
-				let plugObj = {
-					id: self.PLUGINFO.children[i].id.toString(),
-					label: self.PLUGINFO.children[i].alias,
-				}
-				self.CHOICES_PLUGS.push(plugObj)
+			for (const plugInfo of this.PLUGINFO.children) {
+				this.CHOICES_PLUGS.push({
+					id: plugInfo.id.toString(),
+					label: plugInfo.alias,
+				})
 			}
 		} else {
-			self.SINGLEPLUGMODE = true
+			this.SINGLEPLUGMODE = true
 
-			self.CHOICES_PLUGS = []
-			let plugObj = {
-				id: 1,
-				label: 'Plug',
-			}
-			self.CHOICES_PLUGS.push(plugObj)
+			this.CHOICES_PLUGS = [
+				{
+					id: 1,
+					label: 'Plug',
+				},
+			]
 		}
 	},
 
 	monitorPlugs: async function () {
-		let self = this
-
 		try {
-			if (self.PLUGINFO.children && self.PLUGINFO.children.length > 0) {
-				for (let i = 0; i < self.PLUGINFO.children.length; i++) {
-					let childPlug = await client.getDevice(
-						{ host: self.config.host, childId: self.PLUGINFO.children[i].id },
-						{ timeout: 20000 }
-					)
-					self.monitorEvents(childPlug)
+			if (this.PLUGINFO.children && this.PLUGINFO.children.length > 0) {
+				for (const plugInfo of this.PLUGINFO.children) {
+					let childPlug = await client.getDevice({ host: this.config.host, childId: plugInfo.id }, { timeout: 20000 })
+					this.monitorEvents(childPlug)
 				}
 			} else {
-				//let childPlug = await client.getDevice({ host: self.config.host }, { timeout: 20000 })
-				self.monitorEvents(self.DEVICE)
+				this.monitorEvents(this.DEVICE)
 			}
 		} catch (error) {
-			self.handleError(error)
+			this.handleError(error)
 		}
 	},
 
 	monitorEvents: function (plug) {
-		let self = this
-
 		if (!plug.companionSetupEvents) {
 			plug.companionSetupEvents = true
 
@@ -178,13 +153,13 @@ module.exports = {
 
 			// Plug Events
 			plug.on('power-on', () => {
-				self.updatePlugState(plug.id, 1)
+				this.updatePlugState(plug.id, 1)
 			})
 			plug.on('power-off', () => {
-				self.updatePlugState(plug.id, 0)
+				this.updatePlugState(plug.id, 0)
 			})
 			plug.on('power-update', (powerOn) => {
-				self.updatePlugState(plug.id, powerOn)
+				this.updatePlugState(plug.id, powerOn)
 			})
 			plug.on('in-use', () => {})
 			plug.on('not-in-use', () => {})
@@ -195,7 +170,7 @@ module.exports = {
 			})
 		}
 
-		const pollInterval = self.config.polling ? self.config.interval : 0
+		const pollInterval = this.config.polling ? this.config.interval : 0
 		if (plug.companionPollInterval !== pollInterval) {
 			plug.companionPollInterval = pollInterval
 
@@ -207,72 +182,60 @@ module.exports = {
 	},
 
 	updatePlugState: function (plugId, powerState) {
-		let self = this
-
-		if (self.SINGLEPLUGMODE) {
-			self.PLUGINFO.relay_state = powerState
+		if (this.SINGLEPLUGMODE) {
+			this.PLUGINFO.relay_state = powerState
 		} else {
-			if (self.PLUGINFO.children && self.PLUGINFO.children.length > 0) {
-				for (let i = 0; i < self.PLUGINFO.children.length; i++) {
-					if (self.PLUGINFO.children[i].id === plugId) {
-						self.PLUGINFO.children[i].state = powerState
+			if (this.PLUGINFO.children && this.PLUGINFO.children.length > 0) {
+				for (const plugInfo of this.PLUGINFO.children) {
+					if (plugInfo.id === plugId) {
+						plugInfo.state = powerState
 						break
 					}
 				}
 			}
 		}
 
-		self.checkFeedbacks()
-		self.checkVariables()
+		this.checkFeedbacks()
+		this.checkVariables()
 	},
 
 	setupInterval: function () {
-		let self = this
-
-		if (self.INTERVAL !== null) {
-			clearInterval(self.INTERVAL)
-			self.INTERVAL = null
+		if (this.INTERVAL !== null) {
+			clearInterval(this.INTERVAL)
+			this.INTERVAL = null
 		}
 
-		self.config.interval = parseInt(self.config.interval)
+		this.config.interval = parseInt(this.config.interval)
 
-		if (self.config.interval > 0) {
-			self.log('info', 'Starting Update Interval.')
-			self.INTERVAL = setInterval(self.getInformation.bind(self), self.config.interval)
+		if (this.config.polling && this.config.interval > 0) {
+			this.log('info', 'Starting Update Interval.')
+			this.INTERVAL = setInterval(this.getInformation.bind(this), this.config.interval)
 		}
 	},
 
 	stopInterval: function () {
-		let self = this
+		this.log('info', 'Stopping Update Interval.')
 
-		self.log('info', 'Stopping Update Interval.')
-
-		if (self.INTERVAL) {
-			clearInterval(self.INTERVAL)
-			self.INTERVAL = null
+		if (this.INTERVAL) {
+			clearInterval(this.INTERVAL)
+			this.INTERVAL = null
 		}
 	},
 
 	handleError: function (err) {
-		let self = this
+		this.log('error', 'Stopping Update interval due to error.')
+		this.stopInterval()
 
-		self.log('error', 'Stopping Update interval due to error.')
-		self.stopInterval()
+		let errorStr = err.toString()
 
-		let error = err.toString()
+		this.updateStatus(InstanceStatus.UnknownError)
 
-		self.updateStatus(InstanceStatus.UnknownError)
+		if ('code' in err && err['code'] === 'ECONNREFUSED') {
+			errorStr =
+				'Unable to communicate with Device. Connection refused. Is this the right IP address? Is it still online?'
+			this.updateStatus(InstanceStatus.ConnectionFailure)
+		}
 
-		Object.keys(err).forEach(function (key) {
-			if (key === 'code') {
-				if (err[key] === 'ECONNREFUSED') {
-					error =
-						'Unable to communicate with Device. Connection refused. Is this the right IP address? Is it still online?'
-					self.updateStatus(InstanceStatus.ConnectionFailure)
-				}
-			}
-		})
-
-		self.log('error', error)
+		this.log('error', errorStr)
 	},
 }

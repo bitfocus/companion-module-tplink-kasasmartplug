@@ -37,9 +37,7 @@ module.exports = {
 					if (self.PLUGINFO) {
 						let plug_state = self.PLUGINFO.relay_state
 
-						if (plug_state == opt.option) {
-							return true
-						}
+						return plug_state == opt.option
 					}
 
 					return false
@@ -83,9 +81,7 @@ module.exports = {
 						if (plug) {
 							let plug_state = plug.state
 
-							if (plug_state == opt.option) {
-								return true
-							}
+							return plug_state == opt.option
 						}
 					}
 

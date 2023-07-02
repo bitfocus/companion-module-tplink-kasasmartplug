@@ -1,6 +1,5 @@
 module.exports = {
 	initVariables: function () {
-		let self = this
 		let variables = []
 
 		variables.push({ variableId: 'sw_ver', name: 'SW Version' })
@@ -17,88 +16,86 @@ module.exports = {
 
 		variables.push({ variableId: 'total_plugs', name: 'Total Plugs on Device' })
 
-		if (self.SINGLEPLUGMODE) {
+		if (this.SINGLEPLUGMODE) {
 			variables.push({ variableId: 'power_state', name: 'Power State' })
 		} else {
-			if (self.PLUGINFO.children && self.PLUGINFO.children.length > 0) {
-				for (let i = 0; i < self.PLUGINFO.children.length; i++) {
+			if (this.PLUGINFO.children && this.PLUGINFO.children.length > 0) {
+				for (let i = 0; i < this.PLUGINFO.children.length; i++) {
 					variables.push({ variableId: 'power_state_' + (i + 1), name: 'Power State ' + (i + 1) })
 					variables.push({ variableId: 'alias_' + (i + 1), name: 'Alias ' + (i + 1) })
 				}
 			}
 		}
 
-		self.setVariableDefinitions(variables)
+		this.setVariableDefinitions(variables)
 	},
 
 	checkVariables: function () {
-		let self = this
-
 		let variableObj = {}
 
 		try {
-			if ('sw_ver' in self.PLUGINFO) {
-				variableObj['sw_ver'] = self.PLUGINFO.sw_ver
+			if ('sw_ver' in this.PLUGINFO) {
+				variableObj['sw_ver'] = this.PLUGINFO.sw_ver
 			}
 
-			if ('hw_ver' in self.PLUGINFO) {
-				variableObj['hw_ver'] = self.PLUGINFO.hw_ver
+			if ('hw_ver' in this.PLUGINFO) {
+				variableObj['hw_ver'] = this.PLUGINFO.hw_ver
 			}
 
-			if ('model' in self.PLUGINFO) {
-				variableObj['model'] = self.PLUGINFO.model
+			if ('model' in this.PLUGINFO) {
+				variableObj['model'] = this.PLUGINFO.model
 			}
 
-			if ('deviceId' in self.PLUGINFO) {
-				variableObj['device_id'] = self.PLUGINFO.deviceId
+			if ('deviceId' in this.PLUGINFO) {
+				variableObj['device_id'] = this.PLUGINFO.deviceId
 			}
 
-			if ('oemId' in self.PLUGINFO) {
-				variableObj['oem_id'] = self.PLUGINFO.oemId
+			if ('oemId' in this.PLUGINFO) {
+				variableObj['oem_id'] = this.PLUGINFO.oemId
 			}
 
-			if ('hwId' in self.PLUGINFO) {
-				variableObj['hw_id'] = self.PLUGINFO.hwId
+			if ('hwId' in this.PLUGINFO) {
+				variableObj['hw_id'] = this.PLUGINFO.hwId
 			}
 
-			if ('rssi' in self.PLUGINFO) {
-				variableObj['rssi'] = self.PLUGINFO.rssi
+			if ('rssi' in this.PLUGINFO) {
+				variableObj['rssi'] = this.PLUGINFO.rssi
 			}
 
-			if ('latitude_i' in self.PLUGINFO) {
-				variableObj['latitude'] = self.PLUGINFO.latitude_i
+			if ('latitude_i' in this.PLUGINFO) {
+				variableObj['latitude'] = this.PLUGINFO.latitude_i
 			}
 
-			if ('longitude_i' in self.PLUGINFO) {
-				variableObj['longitude'] = self.PLUGINFO.longitude_i
+			if ('longitude_i' in this.PLUGINFO) {
+				variableObj['longitude'] = this.PLUGINFO.longitude_i
 			}
 
-			if ('alias' in self.PLUGINFO) {
-				variableObj['alias'] = self.PLUGINFO.alias
+			if ('alias' in this.PLUGINFO) {
+				variableObj['alias'] = this.PLUGINFO.alias
 			}
 
-			if ('mac' in self.PLUGINFO) {
-				variableObj['mac_address'] = self.PLUGINFO.mac
+			if ('mac' in this.PLUGINFO) {
+				variableObj['mac_address'] = this.PLUGINFO.mac
 			}
 
-			if (self.SINGLEPLUGMODE) {
+			if (this.SINGLEPLUGMODE) {
 				variableObj['total_plugs'] = '1'
-				variableObj['power_state'] = self.PLUGINFO.relay_state == 1 ? 'On' : 'Off'
+				variableObj['power_state'] = this.PLUGINFO.relay_state == 1 ? 'On' : 'Off'
 			} else {
-				if (self.PLUGINFO.children && self.PLUGINFO.children.length > 0) {
-					variableObj['total_plugs'] = self.PLUGINFO.children.length
+				if (this.PLUGINFO.children && this.PLUGINFO.children.length > 0) {
+					variableObj['total_plugs'] = this.PLUGINFO.children.length
 
-					for (let i = 0; i < self.PLUGINFO.children.length; i++) {
-						variableObj['power_state_' + (i + 1)] = self.PLUGINFO.children[i].state == 1 ? 'On' : 'Off'
-						variableObj['alias_' + (i + 1)] = self.PLUGINFO.children[i].alias
+					for (let i = 0; i < this.PLUGINFO.children.length; i++) {
+						variableObj['power_state_' + (i + 1)] = this.PLUGINFO.children[i].state == 1 ? 'On' : 'Off'
+						variableObj['alias_' + (i + 1)] = this.PLUGINFO.children[i].alias
 					}
 				}
 			}
 
-			self.setVariableValues(variableObj)
+			this.setVariableValues(variableObj)
 		} catch (error) {
 			if (String(error).indexOf("Cannot use 'in' operator to search") === -1) {
-				self.log('error', 'Error from Plug: ' + String(error))
+				this.log('error', 'Error from Plug: ' + String(error))
 			}
 		}
 	},
