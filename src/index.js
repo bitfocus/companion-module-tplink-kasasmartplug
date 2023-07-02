@@ -49,17 +49,15 @@ class kasaplugInstance extends InstanceBase {
 	}
 
 	async destroy() {
-		let self = this
+		this.stopInterval()
 
-		self.stopInterval()
-
-		if (self.DEVICE) {
-			self.DEVICE.closeConnection()
+		if (this.DEVICE) {
+			this.DEVICE.closeConnection()
 		}
 	}
 
 	async init(config) {
-		this.configUpdated(config)
+		await this.configUpdated(config)
 	}
 
 	async configUpdated(config) {

@@ -8,7 +8,7 @@ module.exports = {
 				name: 'Power On',
 				options: [],
 				callback: async function (action) {
-					self.power(1, 1)
+					await self.power(1, 1)
 				},
 			}
 
@@ -16,7 +16,7 @@ module.exports = {
 				name: 'Power Off',
 				options: [],
 				callback: async function (action) {
-					self.power(1, 0)
+					await self.power(1, 0)
 				},
 			}
 
@@ -24,7 +24,7 @@ module.exports = {
 				name: 'Power Toggle',
 				options: [],
 				callback: async function (action) {
-					self.powerToggle(1)
+					await self.powerToggle(1)
 				},
 			}
 		} else {
@@ -41,7 +41,7 @@ module.exports = {
 					},
 				],
 				callback: async function (action) {
-					self.power(action.options.plug, 1)
+					await self.power(action.options.plug, 1)
 				},
 			}
 
@@ -58,7 +58,7 @@ module.exports = {
 					},
 				],
 				callback: async function (action) {
-					self.power(action.options.plug, 0)
+					await self.power(action.options.plug, 0)
 				},
 			}
 
@@ -75,7 +75,7 @@ module.exports = {
 					},
 				],
 				callback: async function (action) {
-					self.powerToggle(action.options.plug)
+					await self.powerToggle(action.options.plug)
 				},
 			}
 		}

@@ -85,41 +85,37 @@ module.exports = {
 		//Get all information from Device
 		let self = this
 
-		if (self.config.host) {
-			try {
-				if (!self.DEVICE) {
-					self.DEVICE = await client.getDevice({ host: self.config.host }, { timeout: 20000 })
+		if (!self.config.host) return
+
+		try {
+			if (!self.DEVICE) {
+				self.DEVICE = await client.getDevice({ host: self.config.host }, { timeout: 20000 })
+			}
+
+			self.PLUGINFO = await self.DEVICE.getSysInfo()
+
+			if (self.PLUGINFO) {
+				self.updateStatus(InstanceStatus.Ok)
+
+				try {
+					self.updateData()
+					self.monitorPlugs()
+				} catch (error) {
+					self.handleError(error)
 				}
 
-				self.DEVICE.getSysInfo()
-					.then((info) => {
-						self.PLUGINFO = info
+				// TODO - this is rather costly to reinit everything for every poll
 
-						if (self.PLUGINFO) {
-							self.updateStatus(InstanceStatus.Ok)
+				self.initActions() // export actions
+				self.initFeedbacks()
+				self.initVariables()
+				self.initPresets()
 
-							try {
-								self.updateData()
-								self.monitorPlugs()
-							} catch (error) {
-								self.handleError(error)
-							}
-
-							self.initActions() // export actions
-							self.initFeedbacks()
-							self.initVariables()
-							self.initPresets()
-
-							self.checkVariables()
-							self.checkFeedbacks()
-						}
-					})
-					.catch((error) => {
-						self.handleError(error)
-					})
-			} catch (error) {
-				self.handleError(error)
+				self.checkVariables()
+				self.checkFeedbacks()
 			}
+		} catch (error) {
+			self.handleError(error)
 		}
 	},
 
@@ -153,46 +149,61 @@ module.exports = {
 	monitorPlugs: async function () {
 		let self = this
 
-		if (self.PLUGINFO.children && self.PLUGINFO.children.length > 0) {
-			for (let i = 0; i < self.PLUGINFO.children.length; i++) {
-				let childPlug = await client.getDevice(
-					{ host: self.config.host, childId: self.PLUGINFO.children[i].id },
-					{ timeout: 20000 }
-				)
-				self.monitorEvents(childPlug)
+		try {
+			if (self.PLUGINFO.children && self.PLUGINFO.children.length > 0) {
+				for (let i = 0; i < self.PLUGINFO.children.length; i++) {
+					let childPlug = await client.getDevice(
+						{ host: self.config.host, childId: self.PLUGINFO.children[i].id },
+						{ timeout: 20000 }
+					)
+					self.monitorEvents(childPlug)
+				}
+			} else {
+				//let childPlug = await client.getDevice({ host: self.config.host }, { timeout: 20000 })
+				self.monitorEvents(self.DEVICE)
 			}
-		} else {
-			//let childPlug = await client.getDevice({ host: self.config.host }, { timeout: 20000 })
-			self.monitorEvents(self.DEVICE)
+		} catch (error) {
+			self.handleError(error)
 		}
 	},
 
 	monitorEvents: function (plug) {
 		let self = this
 
-		// Device (Common) Events
-		plug.on('emeter-realtime-update', (emeterRealtime) => {})
+		if (!plug.companionSetupEvents) {
+			plug.companionSetupEvents = true
 
-		// Plug Events
-		plug.on('power-on', () => {
-			self.updatePlugState(plug.id, 1)
-		})
-		plug.on('power-off', () => {
-			self.updatePlugState(plug.id, 0)
-		})
-		plug.on('power-update', (powerOn) => {
-			self.updatePlugState(plug.id, powerOn)
-		})
-		plug.on('in-use', () => {})
-		plug.on('not-in-use', () => {})
-		plug.on('in-use-update', (inUse) => {
-			//logEvent('in-use-update', device, inUse);
-			//self.checkFeedbacks();
-			//self.checkVariables();
-		})
+			// Device (Common) Events
+			plug.on('emeter-realtime-update', (emeterRealtime) => {})
 
-		if (self.config.polling) {
-			plug.startPolling(self.config.interval)
+			// Plug Events
+			plug.on('power-on', () => {
+				self.updatePlugState(plug.id, 1)
+			})
+			plug.on('power-off', () => {
+				self.updatePlugState(plug.id, 0)
+			})
+			plug.on('power-update', (powerOn) => {
+				self.updatePlugState(plug.id, powerOn)
+			})
+			plug.on('in-use', () => {})
+			plug.on('not-in-use', () => {})
+			plug.on('in-use-update', (inUse) => {
+				//logEvent('in-use-update', device, inUse);
+				//self.checkFeedbacks();
+				//self.checkVariables();
+			})
+		}
+
+		const pollInterval = self.config.polling ? self.config.interval : 0
+		if (plug.companionPollInterval !== pollInterval) {
+			plug.companionPollInterval = pollInterval
+
+			if (pollInterval) {
+				plug.stopPolling()
+			} else {
+				plug.startPolling(pollInterval)
+			}
 		}
 	},
 
