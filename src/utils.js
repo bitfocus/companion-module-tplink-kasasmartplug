@@ -199,9 +199,8 @@ module.exports = {
 		if (plug.companionPollInterval !== pollInterval) {
 			plug.companionPollInterval = pollInterval
 
+			plug.stopPolling()
 			if (pollInterval) {
-				plug.stopPolling()
-			} else {
 				plug.startPolling(pollInterval)
 			}
 		}
