@@ -2,4 +2,6 @@ node_modules/
 package-lock.json
 .DS_Store
 /pkg
-/pkg.tz
+/pkg.tgz
+DEBUG-INSPECT
+DEBUG-PACKAGED

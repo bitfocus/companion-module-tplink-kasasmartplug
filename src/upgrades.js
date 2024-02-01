@@ -1,4 +1,4 @@
-module.exports = [
+export default [
 	function (context, props) {
 		return {
 			updatedConfig: null,
