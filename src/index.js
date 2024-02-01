@@ -1,14 +1,13 @@
-const { InstanceBase, InstanceStatus, runEntrypoint } = require('@companion-module/base')
-const UpgradeScripts = require('./upgrades')
+import { InstanceBase, InstanceStatus, runEntrypoint } from '@companion-module/base'
+import UpgradeScripts from './upgrades.js'
 
-const config = require('./config')
-const actions = require('./actions')
-const feedbacks = require('./feedbacks')
-const variables = require('./variables')
-const presets = require('./presets')
+import * as config from './config.js'
+import * as actions from './actions.js'
+import * as feedbacks from './feedbacks.js'
+import * as variables from './variables.js'
+import * as presets from './presets.js'
 
-const utils = require('./utils')
-
+import * as utils from './utils.js'
 class kasaplugInstance extends InstanceBase {
 	constructor(internal) {
 		super(internal)
@@ -49,7 +48,7 @@ class kasaplugInstance extends InstanceBase {
 	}
 
 	async destroy() {
-		this.stopInterval()
+		await this.stopInterval()
 
 		if (this.cleanupEvents) this.cleanupEvents()
 
@@ -72,8 +71,8 @@ class kasaplugInstance extends InstanceBase {
 
 		this.updateStatus(InstanceStatus.Connecting)
 
-		this.getInformation()
-		this.setupInterval()
+		await this.getInformation()
+		await this.setupInterval()
 
 		this.initActions()
 		this.initFeedbacks()

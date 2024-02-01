@@ -1,7 +1,8 @@
 {
 	"name": "tplink-kasasmartplug",
-	"version": "2.0.2",
+	"version": "2.1.0",
 	"main": "src/index.js",
+	"type": "module",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"format": "prettier -w ."
@@ -12,11 +13,11 @@
 		"url": "git+https://github.com/bitfocus/companion-module-tplink-kasasmartplug.git"
 	},
 	"dependencies": {
-		"@companion-module/base": "~1.4.1",
-		"tplink-smarthome-api": "^4.2.0"
+		"@companion-module/base": "1.4.3"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^1.2.0"
+		"@companion-module/tools": "^1.3.2",
+		"tplink-smarthome-api": "^5.0.0"
 	},
 	"prettier": "@companion-module/tools/.prettierrc.json"
 }
