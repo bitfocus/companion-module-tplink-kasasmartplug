@@ -73,8 +73,6 @@ class kasaplugInstance extends InstanceBase {
 
 		this.ERRORED = false
 
-		// called immediately to prevent config hang if 'host' is not reachable
-		// before 20 second timeout
 		this.getInformation()
 		this.setupInterval()
 
