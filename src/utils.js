@@ -6,7 +6,7 @@ const { Client } = tsa
 const client = new Client()
 
 export async function power(plugId, powerState) {
-	if (!this.config.host) return
+	if (!this.config.host || this.ERRORED) return
 
 	const plugName = this.CHOICES_PLUGS.find((PLUG) => PLUG.id == plugId)?.label || ''
 
@@ -248,5 +248,6 @@ export function handleError(err) {
 		this.stopInterval()
 	}
 
+	this.ERRORED = true
 	this.log('error', errorStr)
 }

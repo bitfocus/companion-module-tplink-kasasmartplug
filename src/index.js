@@ -60,10 +60,10 @@ class kasaplugInstance extends InstanceBase {
 	}
 
 	async init(config) {
-		await this.configUpdated(config)
+		this.configUpdated(config)
 	}
 
-	async configUpdated(config) {
+	configUpdated(config) {
 		// polling is running and polling has been de-selected by config change
 		this.stopInterval()
 
@@ -71,8 +71,12 @@ class kasaplugInstance extends InstanceBase {
 
 		this.updateStatus(InstanceStatus.Connecting)
 
-		await this.getInformation()
-		await this.setupInterval()
+		this.ERRORED = false
+
+		// called immediately to prevent config hang if 'host' is not reachable
+		// before 20 second timeout
+		this.getInformation()
+		this.setupInterval()
 
 		this.initActions()
 		this.initFeedbacks()
