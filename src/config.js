@@ -13,7 +13,7 @@ export function getConfigFields() {
 			type: 'textinput',
 			id: 'host',
 			label: 'Plug IP',
-			default: '192.168.0.5',
+			default: '',
 			width: 4,
 			regex: Regex.IP,
 		},
