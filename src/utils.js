@@ -167,9 +167,9 @@ export function monitorEvents(plug) {
 		plug.on('in-use', () => {})
 		plug.on('not-in-use', () => {})
 		plug.on('in-use-update', (inUse) => {
-			logEvent('in-use-update', device, inUse)
-			self.checkFeedbacks()
-			self.checkVariables()
+			//logEvent('in-use-update', device, inUse)
+			//this.checkFeedbacks()
+			//this.checkVariables()
 		})
 	}
 

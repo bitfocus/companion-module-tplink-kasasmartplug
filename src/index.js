@@ -37,7 +37,7 @@ class kasaplugInstance extends InstanceBase {
 			latitude_i: '',
 			longitude_i: '',
 			mac: '',
-			relay_state: 0,
+			state: 0,
 			alias: '',
 			children: [],
 		}
