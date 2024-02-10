@@ -31,14 +31,17 @@ export async function powerToggle(plugId) {
 	const plugName = this.CHOICES_PLUGS.find((PLUG) => PLUG.id == plugId)?.label || ''
 
 	try {
-		let plug
+		let plug, state
 		if (this.SINGLEPLUGMODE) {
 			plug = await client.getDevice({ host: this.config.host })
+			state = plug.relayState
 		} else {
 			plug = await client.getDevice({ host: this.config.host, childId: plugId })
+			state = plug.state
 		}
 		this.log('info', `Toggling ${plugName} Power`)
-		await plug.togglePowerState()
+		this.updatePlugState(plug, !state)
+		plug.togglePowerState()
 	} catch (error) {
 		this.handleError(error)
 	}
@@ -162,7 +165,7 @@ export function monitorEvents(plug) {
 			this.updatePlugState(plugId, 0)
 		})
 		plug.on('power-update', (powerOn) => {
-			this.updatePlugState(plugId, powerOn)
+			this.updatePlugState(plugId, +powerOn)
 		})
 		plug.on('in-use', () => {})
 		plug.on('not-in-use', () => {})
@@ -231,8 +234,6 @@ export function handleError(err) {
 
 	let errorStr = err.toString()
 
-	this.updateStatus(InstanceStatus.UnknownError)
-
 	if ('code' in err) {
 		if (err['code'] === 'ECONNREFUSED') {
 			errorStr =
@@ -242,6 +243,9 @@ export function handleError(err) {
 			stoppit = false
 		}
 	}
+
+	this.updateStatus(InstanceStatus.UnknownError, errorStr)
+
 
 	if (this.INTERVAL && stoppit) {
 		this.log('error', 'Stopping Update interval due to error.')
