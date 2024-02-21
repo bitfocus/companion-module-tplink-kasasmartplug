@@ -68,6 +68,7 @@ export async function getInformation() {
 
 		if (this.PLUGINFO) {
 			this.updateStatus(InstanceStatus.Ok)
+			this.ERRORED = false
 
 			try {
 				this.updateData()
@@ -176,17 +177,6 @@ export function monitorEvents(plug) {
 		})
 	}
 
-	// deprecated
-	// const pollInterval = this.config.polling ? this.config.interval : 0
-	// if (plug.companionPollInterval !== pollInterval) {
-	// 	plug.companionPollInterval = pollInterval
-
-	// 	plug.stopPolling()
-	// 	if (pollInterval) {
-	// 		plug.startPolling(pollInterval)
-	// 	}
-	// }
-
 	return () => {
 		//		plug.stopPolling()
 		plug.removeAllListeners()
@@ -209,7 +199,7 @@ export function updatePlugState(plugId, powerState) {
 	this.checkFeedbacks()
 	this.checkVariables()
 }
-export async function setupInterval() {
+export function setupInterval() {
 	if (this.INTERVAL !== null) {
 		clearInterval(this.INTERVAL)
 		this.INTERVAL = null
@@ -217,12 +207,10 @@ export async function setupInterval() {
 
 	this.config.interval = parseInt(this.config.interval)
 
-	if (this.config.polling && this.config.interval > 0) {
-		this.log('info', 'Starting Update Interval.')
-		this.INTERVAL = setInterval(this.getInformation.bind(this), this.config.interval)
-	}
+	this.log('info', 'Starting Update Interval.')
+	this.INTERVAL = setInterval(this.getInformation.bind(this), this.config.interval)
 }
-export async function stopInterval() {
+export function stopInterval() {
 	if (this.INTERVAL) {
 		this.log('info', 'Stopping Update Interval.')
 		clearInterval(this.INTERVAL)
@@ -230,22 +218,23 @@ export async function stopInterval() {
 	this.INTERVAL = null
 }
 export function handleError(err) {
-	let stoppit = true
+	let stoppit = false
+
+	// reduce log traffic
+	if (this.ERRORED) {
+		return
+	}
 
 	let errorStr = err.toString()
 
 	if ('code' in err) {
-		if (err['code'] === 'ECONNREFUSED') {
-			errorStr =
-				'Unable to communicate with Device. Connection refused. Is this the right IP address? Is it still online?'
-			this.updateStatus(InstanceStatus.ConnectionFailure)
-		} else if (['ECLOSED'].includes(err['code'])) {
-			stoppit = false
+		if (['ECONNREFUSED', 'EHOSTUNREACH'].includes(err['code'])) {
+			errorStr = 'Unable to communicate with Device. Is this the right IP address? Is it still online?'
 		}
+		this.updateStatus(InstanceStatus.ConnectionFailure, errorStr)
+	} else {
+		this.updateStatus(InstanceStatus.UnknownError, errorStr)
 	}
-
-	this.updateStatus(InstanceStatus.UnknownError, errorStr)
-
 
 	if (this.INTERVAL && stoppit) {
 		this.log('error', 'Stopping Update interval due to error.')

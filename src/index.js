@@ -64,6 +64,8 @@ class kasaplugInstance extends InstanceBase {
 	}
 
 	configUpdated(config) {
+		config.interval = 2000
+
 		// polling is running and polling has been de-selected by config change
 		this.stopInterval()
 
