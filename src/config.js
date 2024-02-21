@@ -18,28 +18,11 @@ export function getConfigFields() {
 			regex: Regex.IP,
 		},
 		{
-			type: 'checkbox',
-			id: 'polling',
-			label: 'Enable Polling',
-			default: false,
-			width: 12,
-		},
-		{
 			type: 'static-text',
-			id: 'intervalInfo',
+			id: 'poll',
 			width: 12,
-			label: 'Update Interval',
-			value: 'Please enter the amount of time in milliseconds to request new information from the device. Set to 0 to disable. Less than 2000 will overrun the device.',
-			isVisible: (configValues) => configValues.polling === true,
-		},
-		{
-			type: 'textinput',
-			id: 'interval',
-			label: 'Update Interval',
-			width: 3,
-			default: 2000,
-			min: 2000,
-			isVisible: (configValues) => configValues.polling === true,
+			label: 'Polling',
+			value: 'Because Polling is necessary for proper module re-connet on error.\n\Since v2.1.4 it is always enabled',
 		},
 	]
 }
