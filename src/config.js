@@ -22,7 +22,7 @@ export function getConfigFields() {
 			id: 'poll',
 			width: 12,
 			label: 'Polling',
-			value: 'Because Polling is necessary for proper module re-connet on error.\n\Since v2.1.4 it is always enabled',
+			value: 'Polling is necessary for re-connect on error.\n\Since v2.1.4 it is always enabled',
 		},
 	]
 }
