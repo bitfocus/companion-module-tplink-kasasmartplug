@@ -5,3 +5,4 @@ package-lock.json
 /pkg.tgz
 DEBUG-INSPECT
 DEBUG-PACKAGED
+.yarn/install-state.gz

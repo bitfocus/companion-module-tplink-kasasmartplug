@@ -14,15 +14,22 @@ export function getConfigFields() {
 			id: 'host',
 			label: 'Plug IP',
 			default: '',
-			width: 4,
+			width: 12,
 			regex: Regex.IP,
 		},
 		{
-			type: 'static-text',
-			id: 'poll',
-			width: 12,
+			type: 'checkbox',
+			id: 'polling',
+			width: 6,
 			label: 'Polling',
-			value: 'Polling is necessary for re-connect on error.\n\Since v2.1.4 it is always enabled',
+			default: true,
+		},
+		{
+			type: 'static-text',
+			id: 'info2',
+			width: 6,
+			label: 'Notice!',
+			value: 'Disabling Polling will prevent automatic reconnect on error.\nFeedback and variables will not always match the plug state.',
 		},
 	]
 }
