@@ -40,8 +40,8 @@ export async function powerToggle(plugId) {
 			state = plug.state
 		}
 		this.log('info', `Toggling ${plugName} Power`)
-		this.updatePlugState(plug, !state)
 		plug.togglePowerState()
+		this.updatePlugState(plug, !state)
 	} catch (error) {
 		this.handleError(error)
 	}
@@ -171,9 +171,9 @@ export function monitorEvents(plug) {
 		plug.on('in-use', () => {})
 		plug.on('not-in-use', () => {})
 		plug.on('in-use-update', (inUse) => {
-			//logEvent('in-use-update', device, inUse)
-			//this.checkFeedbacks()
-			//this.checkVariables()
+			//	logEvent('in-use-update', device, inUse)
+			//	this.checkFeedbacks()
+			//	this.checkVariables()
 		})
 	}
 
@@ -207,8 +207,12 @@ export function setupInterval() {
 
 	this.config.interval = parseInt(this.config.interval)
 
-	this.log('info', 'Starting Update Interval.')
-	this.INTERVAL = setInterval(this.getInformation.bind(this), this.config.interval)
+	if (this.config.polling) {
+		this.log('info', 'Starting Update Interval.')
+		this.INTERVAL = setInterval(this.getInformation.bind(this), this.config.interval)
+	} else {
+		this.getInformation()
+	}
 }
 export function stopInterval() {
 	if (this.INTERVAL) {
