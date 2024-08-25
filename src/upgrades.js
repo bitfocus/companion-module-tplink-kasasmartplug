@@ -21,4 +21,19 @@ export default [
 		}
 		return result
 	},
+	function (context, props) {
+		const result = {
+			updatedConfig: null,
+			updatedActions: [],
+			updatedFeedbacks: [],
+		}
+
+		if (props.config) {
+			if (props.config.scan == undefined || '' == props.config.scan) {
+				props.config.scan = false
+				result.updatedConfig = props.config
+			}
+		}
+		return result
+	},
 ]

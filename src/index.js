@@ -42,9 +42,12 @@ class kasaplugInstance extends InstanceBase {
 			children: [],
 		}
 
+		this.FOUND_PLUGS = {}
+
 		this.CHOICES_PLUGS = [{ id: 1, label: 'Plug' }]
 
 		this.SINGLEPLUGMODE = true
+		this.SCANNING = false
 	}
 
 	async destroy() {
@@ -64,12 +67,30 @@ class kasaplugInstance extends InstanceBase {
 	}
 
 	configUpdated(config) {
+		const oldConfig = this.config
 		config.interval = 2000
 
-		// polling is running and polling has been de-selected by config change
+		// stop in case polling has been de-selected by config change
 		this.stopInterval()
 
+		if (config.plugId != 'none') {
+			const newHost = Object.keys(this.FOUND_PLUGS).length ? this.FOUND_PLUGS[config.plugId].host : null
+			if (newHost && config.host != newHost) {
+				config.host = newHost
+        this.saveConfig(config)
+			}
+		}
+
 		this.config = config
+
+		if (this.config.scan) {
+			if (!this.SCANNING) {
+				this.scanForPlugs()
+			}
+		} else {
+			this.FOUND_PLUGS = []
+			delete this.config.plugId
+		}
 
 		this.updateStatus(InstanceStatus.Connecting)
 
