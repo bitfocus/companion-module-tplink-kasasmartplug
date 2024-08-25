@@ -5,6 +5,27 @@ const { Client } = tsa
 
 const client = new Client()
 
+/**
+ * Gather list of local mixer IP numbers and names
+ */
+export async function scanForPlugs() {
+	const scan = new Client()
+
+	scan.startDiscovery()
+  this.SCANNING = true
+	scan.on('device-new', async (device) => {
+		const plug = await device.getSysInfo({ deviceTypes: ['plug'] })
+    let me = ''
+		plug.host = device.host
+		this.FOUND_PLUGS[plug.deviceId] = plug
+    if (plug.host == this.config.host) {
+      this.config.plugId = ''+plug.deviceId
+      me = '*'
+    }
+		this.log('info', `Found plug ${plug.alias} at ${me}${plug.host}(${plug.mac}) ${plug.deviceId}`)
+	})
+}
+
 export async function power(plugId, powerState) {
 	if (!this.config.host || this.ERRORED) return
 
@@ -233,6 +254,16 @@ export function handleError(err) {
 
 	if ('code' in err) {
 		if (['ECONNREFUSED', 'EHOSTUNREACH'].includes(err['code'])) {
+			if (this.config.host && this.config.mac && this.config.scan) {
+				// if we're scanning see if the IP changed
+				errorStr = `No connection. Checking if ${this.config.mac} has a new IP`
+				let newIP = Object.keys(this.FOUND_PLUGS).find(plug => {
+          return plug.mac == this.config.mac
+        })
+        if (newIP) {
+          this.config.host = newIP
+        }
+			}
 			errorStr = 'Unable to communicate with Device. Is this the right IP address? Is it still online?'
 		}
 		this.updateStatus(InstanceStatus.ConnectionFailure, errorStr)
