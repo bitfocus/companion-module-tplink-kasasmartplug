@@ -9,20 +9,25 @@ const client = new Client()
  * Gather list of local mixer IP numbers and names
  */
 export async function scanForPlugs() {
-	const scan = new Client()
+	this.scanner = new Client()
 
-	scan.startDiscovery()
-  this.SCANNING = true
-	scan.on('device-new', async (device) => {
-		const plug = await device.getSysInfo({ deviceTypes: ['plug'] })
-    let me = ''
-		plug.host = device.host
-		this.FOUND_PLUGS[plug.deviceId] = plug
-    if (plug.host == this.config.host) {
-      this.config.plugId = ''+plug.deviceId
-      me = '*'
-    }
-		this.log('info', `Found plug ${plug.alias} at ${me}${plug.host}(${plug.mac}) ${plug.deviceId}`)
+	this.scanner.startDiscovery()
+	this.SCANNING = true
+	this.scanner.on('device-new', async (device) => {
+		try {
+			const plug = await device.getSysInfo({ deviceTypes: ['plug'] })
+			let me = ''
+			plug.host = device.host
+			this.FOUND_PLUGS[plug.deviceId] = plug
+			if (plug.host == this.config.host) {
+				this.config.plugId = '' + plug.deviceId
+				me = '*'
+			}
+			this.log('info', `Found plug ${plug.alias} at ${me}${plug.host}(${plug.mac}) ${plug.deviceId}`)
+		} catch (error) {
+			// ignore
+			// this.handleError(error)
+		}
 	})
 }
 
@@ -220,8 +225,8 @@ export function updatePlugState(plugId, powerState) {
 	this.checkFeedbacks()
 	this.checkVariables()
 }
-export function setupInterval() {
-	if (this.INTERVAL !== null) {
+export async function setupInterval() {
+	if (this.INTERVAL != null) {
 		clearInterval(this.INTERVAL)
 		this.INTERVAL = null
 	}
@@ -232,7 +237,7 @@ export function setupInterval() {
 		this.log('info', 'Starting Update Interval.')
 		this.INTERVAL = setInterval(this.getInformation.bind(this), this.config.interval)
 	} else {
-		this.getInformation()
+		await this.getInformation()
 	}
 }
 export function stopInterval() {
@@ -257,14 +262,17 @@ export function handleError(err) {
 			if (this.config.host && this.config.mac && this.config.scan) {
 				// if we're scanning see if the IP changed
 				errorStr = `No connection. Checking if ${this.config.mac} has a new IP`
-				let newIP = Object.keys(this.FOUND_PLUGS).find(plug => {
-          return plug.mac == this.config.mac
-        })
-        if (newIP) {
-          this.config.host = newIP
-        }
+				let newIP = Object.keys(this.FOUND_PLUGS).find((plug) => {
+					return plug.mac == this.config.mac
+				})
+				if (newIP) {
+					this.config.host = newIP
+				}
+			} else if ('ECONNRESET' == err['code']) {
+				errorStr = 'Device is aborting connections'
+			} else {
+				errorStr = 'Unable to communicate with Device. Is this the right IP address? Is it still online?'
 			}
-			errorStr = 'Unable to communicate with Device. Is this the right IP address? Is it still online?'
 		}
 		this.updateStatus(InstanceStatus.ConnectionFailure, errorStr)
 	} else {
