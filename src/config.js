@@ -28,17 +28,17 @@ export function getConfigFields() {
 	})
 
 	let ch = []
+	let def = 'none'
 	if (Object.keys(this.FOUND_PLUGS || {}).length == 0) {
 		ch = [{ id: 'none', label: 'No Kasa Plugs located' }]
+		this.config.plugId = 'none'
+		this.saveConfig(this.config)
 	} else {
+		ch = [{ id: 'none', label: 'No plug selected' }]
 		const plugs = this.FOUND_PLUGS
+		this.config.plugId = 'none'
 		for (const pId of Object.keys(plugs)) {
 			ch.push({ id: pId, label: `${plugs[pId].alias} at ${plugs[pId].host} (${plugs[pId].mac})` })
-		}
-    if (this.config.plugId == 'none') {
-			this.config.plugId = ch[0].id
-      this.config.host = this.FOUND_PLUGS[ch[0].id].host
-			this.saveConfig(this.config)
 		}
 	}
 	cf.push({
@@ -50,7 +50,7 @@ export function getConfigFields() {
 			return !!opt.scan
 		},
 		width: 12,
-		default: this.config?.plugId ? this.config.plugId : ch[0].id,
+		default: def,
 		choices: ch,
 	})
 	cf.push(
@@ -70,5 +70,6 @@ export function getConfigFields() {
 				'Disabling Polling will prevent automatic reconnect on error.\nFeedback and variables will not always match the plug state.',
 		},
 	)
+
 	return cf
 }

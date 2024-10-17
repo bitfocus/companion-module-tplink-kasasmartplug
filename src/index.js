@@ -51,7 +51,7 @@ class kasaplugInstance extends InstanceBase {
 	}
 
 	async destroy() {
-		await this.stopInterval()
+		this.stopInterval()
 
 		if (this.cleanupEvents) this.cleanupEvents()
 
@@ -66,19 +66,35 @@ class kasaplugInstance extends InstanceBase {
 		this.configUpdated(config)
 	}
 
-	configUpdated(config) {
+	async configUpdated(config) {
 		const oldConfig = this.config
+		let resave = false
 		config.interval = 2000
 
 		// stop in case polling has been de-selected by config change
 		this.stopInterval()
+		if (this.DEVICE) {
+			this.DEVICE.closeConnection()
+			delete this.DEVICE
+		}
 
-		if (config.plugId != 'none') {
-			const newHost = Object.keys(this.FOUND_PLUGS).length ? this.FOUND_PLUGS[config.plugId].host : null
+		if (this.SCANNING) {
+			this.scanner.stopDiscovery()
+			this.SCANNING = false
+		}
+
+		if (!config.plugId) {
+			config.plugId = ''
+		}
+
+		if (config.scan && !['', 'none'].includes(config.plugId)) {
+			const newHost = Object.keys(this.FOUND_PLUGS).length ? this.FOUND_PLUGS[config.plugId].host : this.config?.host
 			if (newHost && config.host != newHost) {
 				config.host = newHost
-        this.saveConfig(config)
+				resave = true
 			}
+		} else if (!config.scan) {
+			config.plugId = ''
 		}
 
 		this.config = config
@@ -90,10 +106,20 @@ class kasaplugInstance extends InstanceBase {
 		} else {
 			this.FOUND_PLUGS = []
 			delete this.config.plugId
+			resave = true
 		}
 
-		this.updateStatus(InstanceStatus.Connecting)
+		if (config.host != '') {
+			this.updateStatus(InstanceStatus.Connecting)
+		} else {
+			this.updateStatus(InstanceStatus.BadConfig, 'IP address not set')
+			this.FOUND_PLUGS = []
+			resave = true
+		}
 
+		if (resave) {
+			this.saveConfig(this.config)
+		}
 		this.ERRORED = false
 
 		this.getInformation()
