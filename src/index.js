@@ -112,7 +112,7 @@ class kasaplugInstance extends InstanceBase {
 		if (config.host != '') {
 			this.updateStatus(InstanceStatus.Connecting)
 		} else {
-			this.updateStatus(InstanceStatus.BadConfig, 'IP address not set')
+			this.updateStatus(InstanceStatus.ConnectionFailure, 'IP address not set')
 			this.FOUND_PLUGS = []
 			resave = true
 		}
