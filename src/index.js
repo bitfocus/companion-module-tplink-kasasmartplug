@@ -83,18 +83,12 @@ class kasaplugInstance extends InstanceBase {
 			this.SCANNING = false
 		}
 
-		if (!config.plugId) {
-			config.plugId = ''
-		}
-
-		if (config.scan && !['', 'none'].includes(config.plugId)) {
-			const newHost = Object.keys(this.FOUND_PLUGS).length ? this.FOUND_PLUGS[config.plugId].host : this.config?.host
+		if (config.scan && config.plugId && config.plugId !== 'none') {
+			const newHost = Object.keys(this.FOUND_PLUGS).length ? this.FOUND_PLUGS[config.plugId]?.host : this.config?.host
 			if (newHost && config.host != newHost) {
 				config.host = newHost
 				resave = true
 			}
-		} else if (!config.scan) {
-			config.plugId = ''
 		}
 
 		this.config = config
@@ -105,8 +99,10 @@ class kasaplugInstance extends InstanceBase {
 			}
 		} else {
 			this.FOUND_PLUGS = []
-			delete this.config.plugId
-			resave = true
+			if ('plugId' in this.config) {
+				delete this.config.plugId
+				resave = true
+			}
 		}
 
 		if (config.host != '') {
@@ -114,7 +110,6 @@ class kasaplugInstance extends InstanceBase {
 		} else {
 			this.updateStatus(InstanceStatus.ConnectionFailure, 'IP address not set')
 			this.FOUND_PLUGS = []
-			resave = true
 		}
 
 		if (resave) {

@@ -27,17 +27,11 @@ export function getConfigFields() {
 		width: 12,
 	})
 
-	let ch = [{id: 'none', label: 'No Kasa Plugs Located'}]
+	let ch = [{ id: 'none', label: 'No Kasa Plugs Located' }]
 	let def = 'none'
-	if (Object.keys(this.FOUND_PLUGS || {}).length == 0) {
-    if (this.config) {
-		this.config.plugId = 'none'
-		this.saveConfig(this.config)
-    }
-	} else {
+	if (Object.keys(this.FOUND_PLUGS || {}).length > 0) {
 		ch = [{ id: 'none', label: 'No plug selected' }]
 		const plugs = this.FOUND_PLUGS
-		this.config.plugId = 'none'
 		for (const pId of Object.keys(plugs)) {
 			ch.push({ id: pId, label: `${plugs[pId].alias} at ${plugs[pId].host} (${plugs[pId].mac})` })
 		}
